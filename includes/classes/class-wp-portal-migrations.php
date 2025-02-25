@@ -12,7 +12,7 @@
 
 namespace WP_Portal\Migrations;
 
-if (!defined('ABSPATH')) {
+if (! defined( 'ABSPATH' )) {
     exit;
 }
 
@@ -39,7 +39,7 @@ class WP_Portal_Migrations {
 
         // 1) Clients Table
         $clients_table = $wpdb->prefix . 'portal_clients';
-        $sql_clients = "CREATE TABLE IF NOT EXISTS {$clients_table} (
+        $sql_clients   = "CREATE TABLE IF NOT EXISTS {$clients_table} (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             company_name VARCHAR(255) NOT NULL,
             contact_name VARCHAR(255) NOT NULL,
@@ -50,11 +50,11 @@ class WP_Portal_Migrations {
             PRIMARY KEY (id)
         ) {$charset_collate};";
 
-        dbDelta($sql_clients);
+        dbDelta( $sql_clients );
 
         // 2) Projects Table.
         $projects_table = $wpdb->prefix . 'portal_projects';
-        $sql_projects = "CREATE TABLE IF NOT EXISTS {$projects_table} (
+        $sql_projects   = "CREATE TABLE IF NOT EXISTS {$projects_table} (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             client_id BIGINT(20) UNSIGNED NOT NULL,
             title VARCHAR(255) NOT NULL,
@@ -71,7 +71,7 @@ class WP_Portal_Migrations {
 
         // 3) Credentials Table.
         $credentials_table = $wpdb->prefix . 'portal_credentials';
-        $sql_credentials = "CREATE TABLE IF NOT EXISTS {$credentials_table} (
+        $sql_credentials   = "CREATE TABLE IF NOT EXISTS {$credentials_table} (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             project_id BIGINT(20) UNSIGNED,
             label VARCHAR(255) NOT NULL,
@@ -88,7 +88,7 @@ class WP_Portal_Migrations {
 
         // 4) Updates Table.
         $updates_table = $wpdb->prefix . 'portal_updates';
-        $sql_updates = "CREATE TABLE IF NOT EXISTS {$updates_table} (
+        $sql_updates   = "CREATE TABLE IF NOT EXISTS {$updates_table} (
             id BIGINT (20) UNSIGNED NOT NULL AUTO_INCREMENT,
             project_id BIGINT (20) UNSIGNED,
             user_id BIGINT (20) UNSIGNED,
@@ -117,7 +117,7 @@ class WP_Portal_Migrations {
         $credentials_table = $wpdb->prefix . 'portal_credentials';
         $updates_table     = $wpdb->prefix . 'portal_updates';
 
-        // 1) projects_table.client_id → clients_table.id
+        // 1) projects_table.client_id → clients_table.id.
         if ( ! self::constraint_exists( $projects_table, 'fk_projects_clients') ) {
             $sql_fk_projects_clients = "ALTER TABLE {$projects_table}
                 ADD CONSTRAINT fk_projects_clients
@@ -134,7 +134,7 @@ class WP_Portal_Migrations {
         // 2) projects_table.assigned_staff_user_id → wp_users(ID).
         // Use $wpdb->users to handle custom prefixes.
         $wp_users_table = $wpdb->users;
-        if ( ! self::constraint_exists($projects_table, 'fk_projects_wp_users' ) ) {
+        if ( ! self::constraint_exists( $projects_table, 'fk_projects_wp_users' ) ) {
             $sql_fk_projects_wp_users = "ALTER TABLE {$projects_table}
                 ADD CONSTRAINT fk_projects_wp_users
                 FOREIGN KEY (assigned_staff_user_id)

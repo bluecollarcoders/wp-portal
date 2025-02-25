@@ -14,6 +14,8 @@
 
 namespace WP_Portal\Admin;
 
+use WP_Portal\Tables\Client_Table;
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -104,6 +106,15 @@ class WP_Portal_Admin {
      */
     public function render_clients_page(): void {
         echo '<div class="wrap"><h1>Clients</h1></div>';
+
+        $client_table = new Client_Table;
+        $client_table->prepare_items();
+
+        echo '<form method="post">';
+        $client_table->display();
+        echo '</form>';
+
+        echo '</div>';
     }
 
     /**
