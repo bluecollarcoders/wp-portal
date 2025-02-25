@@ -1,60 +1,78 @@
 <?php
+/**
+ * WP Portal Plugin
+ *
+ * This file contains the main class for initializing the WP Portal plugin.
+ *
+ * @package   WP_Portal
+ * @author    Caleb Matteis
+ * @license   GPL-2.0+
+ * @link      https://example.com
+ * @since     1.0.0
+ */
 
 use WP_Portal\Migrations\WP_Portal_Migrations;
+use WP_Portal\Admin\WP_Portal_Admin;
 
 
 
-if( !defined( 'ABSPATH') ) {
+if( ! defined( 'ABSPATH') ) {
     exit;
 }
 
-
-
+/**
+ * Class WP_Portal_Plugin
+ *
+ * Handles the initialization of the WP Portal plugin.
+ */
 class WP_Portal_Plugin {
 
+
+    /**
+     * WP_Portal_Plugin constructor.
+     *
+     * Loads dependencies and initializes hooks.
+     */
     public function __construct() {
 
         // Load dependencies.
         $this->load_dependencies();
-
-        // Intialize hooks.
-        $this->init_hooks();
     }
 
+    /**
+     * Handles plugin activation tasks such as database creation.
+     *
+     * This function ensures that the necessary database tables are created
+     * and runs any upgrade scripts as needed.
+     *
+     * @return void
+     */
     public static function activate(): void {
-        // Activation logic for database creation
-        require_once plugin_dir_path(__FILE__) . 'class-wp-portal-migrations.php';
+
+        require_once plugin_dir_path(dirname(__FILE__)) . '/class-wp-portal-migrations.php';
     
         WP_Portal_Migrations::create_tables();
         self::upgrade();
     }
     
 
+    /**
+     * Loads required class files and initializes dependencies.
+     *
+     * @return void
+     */
     private function load_dependencies(): void {
-        // Example: require files for Repositories, Admin UI, etc.
-        // e.g., 
-        // require_once plugin_dir_path(__FILE__) . 'class-wp-portal-repository.php';
-        // require_once plugin_dir_path(__FILE__) . 'admin/class-wp-portal-admin.php';
+        require_once plugin_dir_path(__FILE__) . '/class-wp-portal-admin.php';
+        new WP_Portal_Admin();
     }
 
-    private function init_hooks(): void {
-        // Add action hooks or filters
-        // Example:
-        add_action('admin_menu', [$this, 'register_admin_menus']);
-    }
-
-    public function register_admin_menus(): void {
-        // e.g.,
-        // add_menu_page(
-        //     'Portal', 
-        //     'Portal', 
-        //     'manage_options', 
-        //     'wp-portal-dashboard', 
-        //     [$this, 'render_dashboard'], 
-        //     'dashicons-clipboard'
-        // );
-    }
-
+    /**
+     * Handles database upgrades based on versioning.
+     *
+     * Checks the stored database version and applies necessary migrations.
+     *
+     * @return void
+     */
     public static function upgrade(): void {
   
         $installed_version = get_option( 'wp_portal_db_version' ); // Fetch the current version
