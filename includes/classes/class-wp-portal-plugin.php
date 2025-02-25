@@ -63,6 +63,8 @@ class WP_Portal_Plugin {
      */
     private function load_dependencies(): void {
         require_once plugin_dir_path(__FILE__) . '/class-wp-portal-admin.php';
+        require_once plugin_dir_path( dirname(__FILE__) ) . '/tables/class-wp-portal-clients-table.php';
+
         new WP_Portal_Admin();
     }
 
