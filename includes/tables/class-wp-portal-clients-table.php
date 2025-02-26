@@ -1,7 +1,14 @@
 <?php
+/**
+ * 
+ *
+ */
+
+declare( strict_types=1 );
 
 namespace WP_Portal\Tables;
 
+use WP_Portal\Repositories\Clients_Repository;
 use WP_List_Table;
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
@@ -65,34 +72,30 @@ class Client_Table extends WP_List_Table {
      * @return void
      */
     public function prepare_items(): void {
-        global $wpdb;
+        // 1) Get pagination settings
+        $per_page     = 10;
+        $current_page = $this->get_pagenum();
+        $offset       = ( $current_page - 1 ) * $per_page;
 
-            $table_name   = $wpdb->prefix . 'portal_clients';
-            $per_page     = 10;
-            $current_page = $this->get_pagenum();
-            $off_set      = ( $current_page - 1 ) * $per_page;
+        // 2) Sorting
+        $orderby = ! empty( $_GET['orderby'] ) ? sanitize_sql_orderby( $_GET['orderby'] ) : 'id';
+        $order   = ! empty( $_GET['order'] ) ? strtoupper(sanitize_text_field( $_GET['order'] ) ) : 'ASC';
 
-            // Sorting.
-            $order_by = ! empty( $_GET['orderby'] ) ? sanitize_sql_orderby( $_GET['orderby'] ) : 'id';
-            $order    = ! empty( $_GET['order'] ) ? strtoupper( sanitize_text_field( $_GET['order'] ) ) : 'ASC';
+        // 3) Use the repository to get data
+        $repo = new Clients_Repository();
 
-            // Get total count.
-            $total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+        $total_items = (int) $repo->count_clients();
+        $data        = $repo->get_clients_paginated( $orderby, $order, $per_page, $offset );
 
-            // Fetch data.
-            $data = $wpdb->get_results(
-                $wpdb->prepare( "SELECT * FROM {$table_name} ORDER BY {$order_by} {$order} LIMIT %d", $per_page, $off_set ),
-                ARRAY_A
-            );
+        // 4) Assign data to $this->items
+        $this->items = $data;
 
-            $this->items = $data;
-
-            // Set pagination.
-            $this->set_pagination_args( [
-                'total_items' => $total_items,
-                'per_page'    => $per_page,
-                'total_pages' => ceil( $total_items / $per_page )
-            ] );
+        // 5) Setup pagination
+        $this->set_pagination_args( [
+            'total_items' => $total_items,
+            'per_page'    => $per_page,
+            'total_pages' => ceil( $total_items / $per_page )
+        ] );
     }
 
     /**
